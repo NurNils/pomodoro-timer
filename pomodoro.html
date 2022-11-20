@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+p {
+  text-align: left;
+  font-size: 3rem;
+  font-weight: bold;
+  margin-top: 0;
+  color: black;
+}
+</style>
+</head>
+<body>
+<p id="pomodoro"></p>
+<audio id="audio" src="./sound.mp3"></audio>
+<script>
+  // Time for work (in seconds, typically 25 minutes)
+  var timeWork = 25 * 60;
+  
+  // Time for pause (in seconds, typically 5–10 minutes)
+  var timePause = 5 * 60;
+  
+  // Time for big pause (in seconds, typically 20 to 30 minutes)
+  var timePauseBig = 20 * 60;
+  
+  // Amount of working phases till big pause
+  var timeWorkAmount = 3;
+
+  // Pomodoro HTMLElement
+  var elementPomodoro = document.getElementById("pomodoro");
+  
+  // Seconds since start
+  var sec = 0;
+  
+  // Time work counter
+  var timeWorkCount = 0;
+  
+  // Ended cycles
+  var cycles = 0;
+  
+  // Starts timer
+  setInterval(function() {   
+    if(sec < timeWork) {
+		elementPomodoro.innerHTML = ((timeWorkAmount * cycles) + timeWorkCount + 1) + '. Working phase: ' + getTime(timeWork - 1 - sec);
+	} else {
+		// Pause
+		if(timeWorkCount < (timeWorkAmount - 1)) {
+			// Small pause
+			if(sec <= (timeWork + timePause - 1)) {
+				elementPomodoro.innerHTML = 'Small Pause: ' + getTime(timePause - (sec - timeWork) - 1);
+				if(sec == (timeWork + timePause - 1)) {
+					timeWorkCount++;
+					sec = -1;		
+					var audioElement = document.getElementById('audio');
+					audioElement.volume = 0.2;
+					audioElement.play();
+				}			
+			}
+		} else {
+			// Big pause
+			if(sec <= (timeWork + timePauseBig - 1)) {
+				elementPomodoro.innerHTML = 'Big Pause: ' + getTime(timePauseBig - (sec - timeWork) - 1);
+				if(sec == (timeWork + timePauseBig - 1)) {
+					cycles++;
+					timeWorkCount = 0;
+					sec = -1;	
+					var audioElement = document.getElementById('audio');
+					audioElement.volume = 0.2;
+					audioElement.play();				
+				}				
+			}
+		}
+	 
+	}
+	sec++;
+  }, 1000);    
+  
+  // Format seconds (e.q. 210 seconds will be formatted to 03:30)
+  function getTime(sec) {
+	let seconds = sec % 60;
+	let minutes = Math.round((sec - seconds) / 60);
+	return (minutes > 9 ? minutes : '0' + minutes) + ':' + (seconds > 9 ? seconds : '0' + seconds);
+  }
+</script>
+</body>
+</html>
